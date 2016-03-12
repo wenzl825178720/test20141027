@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.util.Log;
 import android.util.LruCache;
 
 import java.io.File;
@@ -20,6 +21,7 @@ import libcore.io.DiskLruCache;
  * Created by Administrator on 2016/3/11.
  */
 public class BitmapCache {
+    private static final String TAG="BitmapCache";
 
     private LruCache<String, Bitmap> memoryLruCache;//LRU内存缓存
     public DiskLruCache diskLruCache;//LRU磁盘缓存
@@ -46,9 +48,11 @@ public class BitmapCache {
 
     //获取缓存目录
     private File getCacheDir(Context context,String name) {
+        Log.d(TAG, "context=" + context);
         String cachePath = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED ||
                 !Environment.isExternalStorageRemovable() ?
                 context.getExternalCacheDir().getPath() : context.getCacheDir().getPath();
+
         name = cachePath + File.separator + name;
         return new File(name);
     }
