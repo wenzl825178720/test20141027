@@ -1,6 +1,11 @@
 package com.lina.android.mytestln.view.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Shader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +15,12 @@ import android.widget.TextView;
 
 import com.lina.android.mytestln.R;
 import com.lina.android.mytestln.bean.BaseBean;
-import com.lina.android.mytestln.http.image.loader.LinaImageLoader;
+import com.lina.android.mytestln.http.MyImageLoader;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.LoadedFrom;
+import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 
 import java.util.ArrayList;
 
@@ -21,6 +31,28 @@ public class MyAdapter extends BaseAdapter {
 
     private Context context;
     private ArrayList<BaseBean> list = new ArrayList<BaseBean>();
+    private DisplayImageOptions videoCoverOptions=new DisplayImageOptions.Builder()
+            .showImageForEmptyUri(R.mipmap.video_cover)
+            .showImageOnFail(R.mipmap.video_cover)
+            .showImageOnLoading(R.mipmap.video_cover)
+            .build();
+
+    DisplayImageOptions headIamgeOptions=new DisplayImageOptions.Builder()
+            .cacheInMemory(true)
+            .cacheOnDisk(true)
+            .displayer(new BitmapDisplayer() {
+                @Override
+                public void display(Bitmap bitmap, ImageAware imageAware, LoadedFrom loadedFrom) {
+                    Bitmap bitmap1 = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+                    Canvas canvas = new Canvas(bitmap1);
+                    BitmapShader shader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+                    Paint paint = new Paint();
+                    paint.setShader(shader);
+                    canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2, bitmap.getHeight() / 2, paint);
+                    imageAware.setImageBitmap(bitmap1);
+                }
+            })
+            .build();
 
     public MyAdapter(Context context, ArrayList<BaseBean> list) {
         this.context = context;
@@ -61,26 +93,14 @@ public class MyAdapter extends BaseAdapter {
 
         BaseBean beanL = list.get(position);
         vh.songname.setText(beanL.soundname);
-//        ImageLoader.setImage(vh.imageView, beanL.imageUrl);
-//        ImageLoader.setImage(vh.userimage, beanL.imageUser);
-        if (beanL.imageUrl != null) {
-            LinaImageLoader.getInstance(context).loadBitmap(vh.imageView, beanL.imageUrl);
-        }
-        if (beanL.imageUser != null) {
-            LinaImageLoader.getInstance(context).loadBitmap(vh.userimage, beanL.imageUser);
-        }
+        MyImageLoader.universalimageloader.displayImage(beanL.imageUrl, vh.imageView, videoCoverOptions);
+        MyImageLoader.universalimageloader.displayImage(beanL.imageUser, vh.userimage, headIamgeOptions);
 
         if (position * 2 + 1 < list.size()) {
             BaseBean beanR = list.get(position * 2 + 1);
             vh.songname2.setText(beanR.soundname);
-//            ImageLoader.setImage(vh.imageView2, beanR.imageUrl);
-//            ImageLoader.setImage(vh.userimage2, beanR.imageUser);
-            if (beanR.imageUrl != null) {
-                LinaImageLoader.getInstance(context).loadBitmap(vh.imageView2, beanR.imageUrl);
-            }
-            if (beanR.imageUser != null) {
-                LinaImageLoader.getInstance(context).loadBitmap(vh.imageView2, beanR.imageUser);
-            }
+            MyImageLoader.universalimageloader.displayImage(beanR.imageUrl, vh.imageView2, videoCoverOptions);
+            MyImageLoader.universalimageloader.displayImage(beanR.imageUser, vh.userimage2, headIamgeOptions);
         }
 
         return convertView;
